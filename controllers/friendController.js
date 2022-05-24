@@ -62,6 +62,19 @@ exports.updateFriend = async (req, res, next) => {
 
 exports.deleteFriend = async (req, res, next) => {
   try {
+    const { id } = req.params;
+    const friend = await Friend.fineOne({ where: { id } });
+    if (!friend) {
+      createError("Friend not found", 400);
+    }
+    if (
+      friend.requestFromId !== req.user.id &&
+      friend.requestToId !== req.user.id
+    ) {
+      createError("You can't delete this friend", 400);
+    }
+
+    await friend.destroy();
   } catch (error) {
     next(error);
   }
